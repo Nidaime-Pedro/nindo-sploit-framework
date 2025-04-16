@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSF - Nindo Sploit Framework</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Vue.js CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Axios para requisições HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Highlight.js para destacar sintaxe -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+    <!-- Customização do Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2ecc71',
+                        danger: '#e74c3c',
+                        warning: '#f39c12',
+                        info: '#1abc9c',
+                        dark: '#121212',
+                        darker: '#0a0a0a',
+                        darkest: '#050505',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos personalizados -->
+    <style>
+        /* Tema escuro por padrão */
+        html,
+        body {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b3b3b;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        /* Animações */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* Terminal vibe */
+        .terminal {
+            font-family: "Consolas", "Courier New", monospace;
+            background-color: #0c0c0c;
+            color: #33cc33;
+            padding: 12px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-prompt::before {
+            content: "$ ";
+            color: #3498db;
+        }
+
+        .terminal-output {
+            color: #f5f5f5;
+        }
+
+        .terminal-error {
+            color: #e74c3c;
+        }
+
+        .terminal-success {
+            color: #2ecc71;
+        }
+
+        .terminal-warning {
+            color: #f39c12;
+        }
+
+        .terminal-info {
+            color: #1abc9c;
+        }
+    </style>
+</head>
+
+<body class="bg-darker min-h-screen">
+    <div id="app" class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-darkest shadow-lg">
+            <div class="p-4 border-b border-gray-800">
+                <h1 class="text-xl font-bold text-primary">
+                    <i class="fas fa-shield-alt mr-2"></i> NSF
+                </h1>
+                <p class="text-sm text-gray-500">Nindo Sploit Framework</p>
+            </div>
+
+            <nav class="mt-4">
+                <div class="px-4 py-2 text-xs uppercase text-gray-500 font-semibold">
+                    Ferramentas
+                </div>
+
+                <div class="px-4 py-2 mt-2 text-xs uppercase text-gray-500 font-semibold">
+                    Criptografia
+                </div>
+                <a @click="changeTool('hash-analyzer')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'hash-analyzer'}">
+                    <i class="fas fa-fingerprint mr-2"></i> Analisador de Hash
+                </a>
+
+                <a @click="changeTool('crypto-cracker')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'crypto-cracker'}">
+                    <i class="fas fa-unlock-alt mr-2"></i> Quebra de Criptografia
+                </a>
+
+                <!-- Links de navegação -->
+                <a @click="changeTool('port-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'port-scanner'}">
+                    <i class="fas fa-network-wired mr-2"></i> Scanner de Portas
+                </a>
+
+                <a @click="changeTool('directory-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'directory-scanner'}">
+                    <i class="fas fa-folder-open mr-2"></i> Scanner de Diretórios
+                </a>
+
+                <a @click="changeTool('subdomain-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'subdomain-scanner'}">
+                    <i class="fas fa-globe mr-2"></i> Scanner de Subdomínios
+                </a>
+
+                <a @click="changeTool('tech-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'tech-scanner'}">
+                    <i class="fas fa-code mr-2"></i> Scanner de Tecnologias
+                </a>
+
+                <a @click="changeTool('plugin-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'plugin-scanner'}">
+                    <i class="fas fa-puzzle-piece mr-2"></i> Scanner de Plugins
+                </a>
+
+                <div class="px-4 py-2 mt-2 text-xs uppercase text-gray-500 font-semibold">
+                    Vulnerabilidades
+                </div>
+
+                <a @click="changeTool('sqli-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'sqli-scanner'}">
+                    <i class="fas fa-database mr-2"></i> SQL Injection
+                </a>
+
+                <a @click="changeTool('xss-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'xss-scanner'}">
+                    <i class="fas fa-code mr-2"></i> XSS
+                </a>
+
+                <a @click="changeTool('redirect-scanner')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'redirect-scanner'}">
+                    <i class="fas fa-external-link-alt mr-2"></i> Open Redirect
+                </a>
+
+                <a @click="changeTool('bruteforce')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'bruteforce'}">
+                    <i class="fas fa-hammer mr-2"></i> Brute Force
+                </a>
+
+                <a @click="changeTool('bypass-403')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'bypass-403'}">
+                    <i class="fas fa-unlock-alt mr-2"></i> Bypass 403
+                </a>
+
+                <div class="px-4 py-2 mt-2 text-xs uppercase text-gray-500 font-semibold">
+                    Relatórios
+                </div>
+
+                <a @click="changeTool('report-generator')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'report-generator'}">
+                    <i class="fas fa-file-alt mr-2"></i> Gerar Relatório
+                </a>
+
+                <a @click="changeTool('history')"
+                    class="block px-4 py-2 text-sm cursor-pointer hover:bg-dark transition"
+                    :class="{'bg-dark text-primary': currentTool === 'history'}">
+                    <i class="fas fa-history mr-2"></i> Histórico
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo principal -->
+        <main class="flex-1 overflow-y-auto p-6 bg-dark">
+            <!-- Cabeçalho da ferramenta atual -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-white">
+                    <i :class="toolIcon"></i> {{ toolTitle }}
+                </h2>
+                <p class="text-gray-400">{{ toolDescription }}</p>
+            </div>
+
+            <!-- Conteúdo dinâmico baseado na ferramenta atual -->
+            <div v-if="currentTool === 'port-scanner'">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Formulário -->
+                    <div class="bg-darker p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">Scanner de Portas</h3>
+
+                        <form @submit.prevent="runPortScan">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Alvo (IP ou Domínio)</label>
+                                <input type="text" v-model="portScanner.target"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="exemplo.com ou 192.168.1.1">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Range de Portas</label>
+                                <input type="text" v-model="portScanner.portRange"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="1-1000">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading">
+                                <i class="fas fa-play mr-2"></i> Iniciar Scan
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div class="md:col-span-2 bg-darker rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-primary">Resultados</h3>
+                            <div v-if="portScanner.results">
+                                <button @click="saveResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded mr-2">
+                                    <i class="fas fa-save mr-1"></i> Salvar
+                                </button>
+                                <button @click="clearResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded">
+                                    <i class="fas fa-trash mr-1"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Loader -->
+                            <div v-if="isLoading" class="text-center py-8">
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-4"></i>
+                                <p class="text-gray-400">Escaneando portas, aguarde...</p>
+                            </div>
+
+                            <!-- Resultado dos dados -->
+                            <div v-else-if="portScanner.results" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-terminal mr-2"></i> Resultado do Scan</span>
+                                    <span>Alvo: {{ portScanner.results.host }}</span>
+                                </div>
+
+                                <div class="terminal-prompt">
+                                    Escaneando {{ portScanner.results.host }} ({{ portScanner.results.scanned_range }})
+                                </div>
+
+                                <div class="terminal-output mt-2">
+                                    <p class="mb-2">Scan concluído em {{ portScanner.results.scan_time }}s</p>
+                                    <p class="mb-2">Portas abertas encontradas: <span class="terminal-success">{{
+                                            portScanner.results.total_open }}</span></p>
+
+                                    <div v-if="portScanner.results.open_ports && portScanner.results.open_ports.length > 0"
+                                        class="mt-4">
+                                        <p class="terminal-info mb-2">Detalhes das portas:</p>
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="text-left">
+                                                    <th class="py-1 pr-4">Porta</th>
+                                                    <th class="py-1 pr-4">Serviço</th>
+                                                    <th class="py-1 pr-4">Produto</th>
+                                                    <th class="py-1">Versão</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="port in portScanner.results.open_ports" :key="port">
+                                                    <td class="py-1 pr-4">{{ port }}</td>
+                                                    <td class="py-1 pr-4">{{ getPortDetails(port, 'service') }}</td>
+                                                    <td class="py-1 pr-4">{{ getPortDetails(port, 'product') }}</td>
+                                                    <td class="py-1">{{ getPortDetails(port, 'version') }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div v-else class="terminal-warning mt-4">
+                                        Nenhuma porta aberta encontrada.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nenhum resultado ainda -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="fas fa-network-wired text-4xl mb-4"></i>
+                                <p>Insira um alvo e clique em "Iniciar Scan" para começar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outros scanners seguiriam padrão semelhante -->
+            <!-- Scanner de Diretórios -->
+            <div v-else-if="currentTool === 'directory-scanner'">
+                <!-- Implementação similar ao de portas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Formulário -->
+                    <div class="bg-darker p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">Scanner de Diretórios</h3>
+
+                        <form @submit.prevent="runDirectoryScan">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">URL Alvo</label>
+                                <input type="text" v-model="directoryScanner.target"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="https://exemplo.com">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Wordlist</label>
+                                <select v-model="directoryScanner.wordlist"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary">
+                                    <option value="common">Comum</option>
+                                    <option value="big">Grande</option>
+                                    <option value="small">Pequena</option>
+                                    <option value="custom">Personalizada</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Extensões</label>
+                                <input type="text" v-model="directoryScanner.extensions"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="php,html,js,txt">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading">
+                                <i class="fas fa-play mr-2"></i> Iniciar Scan
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div class="md:col-span-2 bg-darker rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-primary">Resultados</h3>
+                            <div v-if="directoryScanner.results">
+                                <button @click="saveResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded mr-2">
+                                    <i class="fas fa-save mr-1"></i> Salvar
+                                </button>
+                                <button @click="clearResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded">
+                                    <i class="fas fa-trash mr-1"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Loader -->
+                            <div v-if="isLoading" class="text-center py-8">
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-4"></i>
+                                <p class="text-gray-400">Escaneando diretórios, aguarde...</p>
+                            </div>
+
+                            <!-- Resultado dos dados -->
+                            <div v-else-if="directoryScanner.results" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-terminal mr-2"></i> Resultado do Scan</span>
+                                    <span>Alvo: {{ directoryScanner.results.target }}</span>
+                                </div>
+
+                                <div class="terminal-prompt">
+                                    Escaneando {{ directoryScanner.results.target }}
+                                </div>
+
+                                <div class="terminal-output mt-2">
+                                    <p class="mb-2">Scan concluído em {{ directoryScanner.results.scan_time }}s</p>
+                                    <p class="mb-2">Diretórios/Arquivos encontrados: <span class="terminal-success">{{
+                                            directoryScanner.results.directories.length }}</span></p>
+
+                                    <div v-if="directoryScanner.results.directories.length > 0" class="mt-4">
+                                        <p class="terminal-info mb-2">Detalhes dos diretórios:</p>
+                                        <table class="w-full border-collapse">
+                                            <thead>
+                                                <tr class="text-left">
+                                                    <th class="py-1 pr-4">URL</th>
+                                                    <th class="py-1 pr-4">Status</th>
+                                                    <th class="py-1">Tamanho</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(dir, index) in directoryScanner.results.directories"
+                                                    :key="index">
+                                                    <td class="py-1 pr-4">{{ dir.url }}</td>
+                                                    <td class="py-1 pr-4">
+                                                        <span :class="getStatusClass(dir.status)">{{ dir.status
+                                                            }}</span>
+                                                    </td>
+                                                    <td class="py-1">{{ dir.size }} bytes</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div v-else class="terminal-warning mt-4">
+                                        Nenhum diretório ou arquivo encontrado.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nenhum resultado ainda -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="fas fa-folder-open text-4xl mb-4"></i>
+                                <p>Insira uma URL alvo e clique em "Iniciar Scan" para começar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Analisador de Hash -->
+            <div v-if="currentTool === 'hash-analyzer'">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Formulário do Analisador de Hash -->
+                    <div class="bg-darker p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">Analisador de Hash</h3>
+
+                        <form @submit.prevent="analyzeHash">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Valor do Hash</label>
+                                <textarea v-model="hashAnalyzer.hashValue"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Hash para análise (ex: 5f4dcc3b5aa765d61d8327deb882cf99)"
+                                    rows="3"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading">
+                                <i class="fas fa-search mr-2"></i> Analisar Hash
+                            </button>
+                        </form>
+
+                        <div class="mt-4 border-t border-gray-800 pt-4">
+                            <h4 class="text-md font-semibold mb-3 text-primary">Gerador de Hash</h4>
+
+                            <form @submit.prevent="generateHash">
+                                <div class="mb-4">
+                                    <label class="block text-gray-300 mb-2">Texto para gerar hash</label>
+                                    <input type="text" v-model="hashAnalyzer.inputString"
+                                        class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                        placeholder="Texto para gerar hash">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-gray-300 mb-2">Algoritmos</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div v-for="algo in hashAlgorithms" :key="algo.value" class="flex items-center">
+                                            <input type="checkbox" :id="algo.value"
+                                                v-model="hashAnalyzer.selectedAlgorithms" :value="algo.value"
+                                                class="mr-2">
+                                            <label :for="algo.value" class="text-gray-300 text-sm">{{ algo.name
+                                                }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                    :disabled="isLoading || !hashAnalyzer.inputString">
+                                    <i class="fas fa-cog mr-2"></i> Gerar Hash
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Resultados do Analisador de Hash -->
+                    <div class="md:col-span-2 bg-darker rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-primary">Resultados da Análise</h3>
+                            <div v-if="hashAnalyzer.results">
+                                <button @click="saveResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded mr-2">
+                                    <i class="fas fa-save mr-1"></i> Salvar
+                                </button>
+                                <button @click="clearResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded">
+                                    <i class="fas fa-trash mr-1"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Loader -->
+                            <div v-if="isLoading" class="text-center py-8">
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-4"></i>
+                                <p class="text-gray-400">Analisando hash, aguarde...</p>
+                            </div>
+
+                            <!-- Resultado da Análise de Hash -->
+                            <div v-else-if="hashAnalyzer.results && hashAnalyzer.mode === 'analyze'" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-fingerprint mr-2"></i> Análise de Hash</span>
+                                    <span>{{ hashAnalyzer.results.hash }}</span>
+                                </div>
+
+                                <div class="terminal-output mt-4">
+                                    <!-- Tipos identificados -->
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Tipos de Hash Identificados:</p>
+                                        <div
+                                            v-if="hashAnalyzer.results.identified_types && hashAnalyzer.results.identified_types.length > 0">
+                                            <ul>
+                                                <li v-for="(type, index) in hashAnalyzer.results.identified_types"
+                                                    :key="index" class="py-1">
+                                                    <span class="text-primary">{{ type.name }}</span> ({{ type.type }})
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div v-else class="terminal-warning">
+                                            Nenhum tipo de hash reconhecido
+                                        </div>
+                                    </div>
+
+                                    <!-- Informações do Hash -->
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Informações do Hash:</p>
+                                        <table class="w-full">
+                                            <tr>
+                                                <td class="pr-4 py-1">Comprimento:</td>
+                                                <td class="font-mono">{{ hashAnalyzer.results.length }} caracteres</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Entropia:</td>
+                                                <td class="font-mono">{{ hashAnalyzer.results.entropy?.toFixed(2) ||
+                                                    'N/A' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Base64:</td>
+                                                <td>
+                                                    <span v-if="hashAnalyzer.results.is_base64"
+                                                        class="terminal-success">Sim</span>
+                                                    <span v-else class="terminal-error">Não</span>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="hashAnalyzer.results.base64_decoded">
+                                                <td class="pr-4 py-1">Decodificado (Base64):</td>
+                                                <td class="font-mono">{{ hashAnalyzer.results.base64_decoded }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <!-- Distribuição de Caracteres -->
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Distribuição de Caracteres:</p>
+                                        <table class="w-full">
+                                            <tr v-for="(value, key) in hashAnalyzer.results.character_distribution"
+                                                :key="key">
+                                                <td class="capitalize pr-4 py-1">{{ key }}:</td>
+                                                <td class="font-mono">{{ value.count }} ({{ value.percentage }}%)</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <!-- Recomendações -->
+                                    <div class="mb-4"
+                                        v-if="hashAnalyzer.results.recommendations && hashAnalyzer.results.recommendations.length > 0">
+                                        <p class="terminal-info mb-2">Recomendações:</p>
+                                        <ul>
+                                            <li v-for="(rec, index) in hashAnalyzer.results.recommendations"
+                                                :key="index" class="py-1 pl-4">
+                                                - {{ rec }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resultado do Gerador de Hash -->
+                            <div v-else-if="hashAnalyzer.results && hashAnalyzer.mode === 'generate'" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-cog mr-2"></i> Hashes Gerados</span>
+                                    <span>Input: {{ hashAnalyzer.results.input }}</span>
+                                </div>
+
+                                <div class="terminal-output mt-4">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left py-2">Algoritmo</th>
+                                                <th class="text-left py-2">Hash</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(hash, algo) in hashAnalyzer.results.hashes" :key="algo">
+                                                <td class="pr-4 py-2 font-semibold">{{ algo }}</td>
+                                                <td class="font-mono py-2">
+                                                    {{ hash }}
+                                                    <button @click="copyToClipboard(hash)"
+                                                        class="ml-2 text-primary hover:text-blue-400">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Sem resultados -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="fas fa-fingerprint text-4xl mb-4"></i>
+                                <p>Digite um hash para analisar ou um texto para gerar hashes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quebra de Criptografia -->
+            <div v-if="currentTool === 'crypto-cracker'">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Formulário do Quebrador de Criptografia -->
+                    <div class="bg-darker p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">Quebra de Criptografia</h3>
+
+                        <form @submit.prevent="crackHash">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Valor do Hash</label>
+                                <textarea v-model="cryptoCracker.hashValue"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Hash para quebrar" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Tipo do Hash</label>
+                                <select v-model="cryptoCracker.hashType"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary">
+                                    <option value="md5">MD5</option>
+                                    <option value="sha1">SHA-1</option>
+                                    <option value="sha256">SHA-256</option>
+                                    <option value="ntlm">NTLM</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Wordlist</label>
+                                <select v-model="cryptoCracker.wordlist"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary">
+                                    <option value="common">Comum (100 palavras)</option>
+                                    <option value="passwords">Senhas Comuns (1000 palavras)</option>
+                                    <option value="custom">Personalizada</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4" v-if="cryptoCracker.wordlist === 'custom'">
+                                <label class="block text-gray-300 mb-2">Lista Personalizada</label>
+                                <textarea v-model="cryptoCracker.customWordlist"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Uma palavra por linha" rows="5"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading">
+                                <i class="fas fa-hammer mr-2"></i> Quebrar Hash
+                            </button>
+
+                            <button type="button" @click="estimateCrackTime"
+                                class="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading">
+                                <i class="fas fa-clock mr-2"></i> Estimar Tempo
+                            </button>
+                        </form>
+
+                        <div class="mt-4 border-t border-gray-800 pt-4">
+                            <h4 class="text-md font-semibold mb-3 text-primary">Decodificador</h4>
+
+                            <form @submit.prevent="decodeString">
+                                <div class="mb-4">
+                                    <label class="block text-gray-300 mb-2">Texto Codificado</label>
+                                    <textarea v-model="cryptoCracker.encodedString"
+                                        class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                        placeholder="Texto codificado para decodificar" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-gray-300 mb-2">Tipo de Codificação</label>
+                                    <select v-model="cryptoCracker.encodingType"
+                                        class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary">
+                                        <option value="base64">Base64</option>
+                                        <option value="hex">Hexadecimal</option>
+                                        <option value="binary">Binário</option>
+                                        <option value="caesar">Cifra de César</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-4" v-if="cryptoCracker.encodingType === 'caesar'">
+                                    <label class="block text-gray-300 mb-2">Deslocamento (opcional)</label>
+                                    <input type="number" v-model="cryptoCracker.shift" min="1" max="25"
+                                        class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                        placeholder="1-25 (deixe vazio para testar todos)">
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                    :disabled="isLoading || !cryptoCracker.encodedString">
+                                    <i class="fas fa-unlock mr-2"></i> Decodificar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Resultados do Quebrador de Criptografia -->
+                    <div class="md:col-span-2 bg-darker rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-primary">Resultados</h3>
+                            <div v-if="cryptoCracker.results">
+                                <button @click="saveResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded mr-2">
+                                    <i class="fas fa-save mr-1"></i> Salvar
+                                </button>
+                                <button @click="clearResults"
+                                    class="text-sm bg-dark hover:bg-gray-700 text-gray-300 py-1 px-3 rounded">
+                                    <i class="fas fa-trash mr-1"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Loader -->
+                            <div v-if="isLoading" class="text-center py-8">
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-4"></i>
+                                <div v-if="cryptoCracker.mode === 'crack'">
+                                    <p class="text-gray-400">Tentando quebrar hash, aguarde...</p>
+                                    <p class="text-gray-500 text-sm mt-2">Isto pode levar algum tempo dependendo da
+                                        complexidade.</p>
+                                </div>
+                                <div v-else-if="cryptoCracker.mode === 'decode'">
+                                    <p class="text-gray-400">Decodificando texto, aguarde...</p>
+                                </div>
+                                <div v-else>
+                                    <p class="text-gray-400">Processando, aguarde...</p>
+                                </div>
+                            </div>
+
+                            <!-- Resultado do Quebrador de Hash -->
+                            <div v-else-if="cryptoCracker.results && cryptoCracker.mode === 'crack'" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-hammer mr-2"></i> Resultado da Quebra</span>
+                                    <span>Hash: {{ cryptoCracker.results.hash }}</span>
+                                </div>
+
+                                <div class="terminal-output mt-4">
+                                    <div v-if="cryptoCracker.results.success" class="mb-4">
+                                        <p class="terminal-success mb-2">Hash quebrado com sucesso!</p>
+                                        <div class="bg-green-900 bg-opacity-20 p-3 rounded">
+                                            <p class="mb-2">Texto original:</p>
+                                            <p class="font-mono text-xl text-green-400">{{
+                                                cryptoCracker.results.plaintext }}</p>
+                                        </div>
+                                    </div>
+                                    <div v-else class="mb-4">
+                                        <p class="terminal-error mb-2">Não foi possível quebrar o hash.</p>
+                                        <p>{{ cryptoCracker.results.message }}</p>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Detalhes:</p>
+                                        <table class="w-full">
+                                            <tr>
+                                                <td class="pr-4 py-1">Tipo de Hash:</td>
+                                                <td class="font-semibold">{{
+                                                    cryptoCracker.results.hash_type.toUpperCase() }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Tentativas:</td>
+                                                <td>{{ cryptoCracker.results.attempts }} de {{
+                                                    cryptoCracker.results.total_words }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Tempo:</td>
+                                                <td>{{ cryptoCracker.results.crack_time }} segundos</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resultado da Estimativa de Tempo -->
+                            <div v-else-if="cryptoCracker.results && cryptoCracker.mode === 'estimate'"
+                                class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-clock mr-2"></i> Estimativa de Tempo</span>
+                                    <span>Hash: {{ cryptoCracker.results.hash_type.toUpperCase() }}</span>
+                                </div>
+
+                                <div class="terminal-output mt-4">
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Detalhes da Estimativa:</p>
+                                        <table class="w-full">
+                                            <tr>
+                                                <td class="pr-4 py-1">Tipo de Hash:</td>
+                                                <td class="font-semibold">{{
+                                                    cryptoCracker.results.hash_type.toUpperCase() }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Tamanho da Wordlist:</td>
+                                                <td>{{ cryptoCracker.results.wordlist_size.toLocaleString() }} palavras
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Tempo Estimado:</td>
+                                                <td>{{ cryptoCracker.results.estimated_time }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Velocidade de Hash:</td>
+                                                <td>{{ (cryptoCracker.results.hash_speed / 1000000).toFixed(0) }}
+                                                    Milhões/s</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="mt-4 p-3 bg-yellow-900 bg-opacity-20 rounded">
+                                        <p class="text-yellow-400">
+                                            <i class="fas fa-exclamation-triangle mr-2"></i> Esta é apenas uma
+                                            estimativa e pode variar significativamente dependendo do hardware
+                                            utilizado.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resultado do Decodificador -->
+                            <div v-else-if="cryptoCracker.results && cryptoCracker.mode === 'decode'" class="terminal">
+                                <div class="terminal-header">
+                                    <span><i class="fas fa-unlock mr-2"></i> Resultado da Decodificação</span>
+                                    <span>Tipo: {{ cryptoCracker.results.encoding_type }}</span>
+                                </div>
+
+                                <div class="terminal-output mt-4">
+                                    <div v-if="cryptoCracker.results.success" class="mb-4">
+                                        <p class="terminal-success mb-2">Decodificação bem-sucedida!</p>
+
+                                        <!-- Para Cifra de César com múltiplos resultados -->
+                                        <div
+                                            v-if="cryptoCracker.results.encoding_type === 'caesar' && cryptoCracker.results.results">
+                                            <p class="mb-2">Possíveis decodificações:</p>
+                                            <div class="max-h-60 overflow-y-auto bg-dark p-2 rounded">
+                                                <div v-for="(result, index) in cryptoCracker.results.results"
+                                                    :key="index" class="mb-2 p-2 border-b border-gray-700">
+                                                    <div class="flex justify-between">
+                                                        <span class="font-semibold">Deslocamento {{ result.shift
+                                                            }}:</span>
+                                                        <button @click="copyToClipboard(result.text)"
+                                                            class="text-primary hover:text-blue-400">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </div>
+                                                    <p class="font-mono mt-1">{{ result.text }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Para outros tipos de decodificação -->
+                                        <div v-else class="bg-green-900 bg-opacity-20 p-3 rounded">
+                                            <div class="flex justify-between items-start">
+                                                <p class="mb-2">Texto decodificado:</p>
+                                                <button @click="copyToClipboard(cryptoCracker.results.decoded)"
+                                                    class="text-primary hover:text-blue-400">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <p class="font-mono">{{ cryptoCracker.results.decoded }}</p>
+                                        </div>
+                                    </div>
+                                    <div v-else class="mb-4">
+                                        <p class="terminal-error mb-2">Não foi possível decodificar o texto.</p>
+                                        <p>{{ cryptoCracker.results.error }}</p>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <p class="terminal-info mb-2">Detalhes:</p>
+                                        <table class="w-full">
+                                            <tr>
+                                                <td class="pr-4 py-1">Tipo de Codificação:</td>
+                                                <td class="font-semibold">{{ cryptoCracker.results.encoding_type }}</td>
+                                            </tr>
+                                            <tr v-if="cryptoCracker.results.shift">
+                                                <td class="pr-4 py-1">Deslocamento:</td>
+                                                <td>{{ cryptoCracker.results.shift }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-4 py-1">Tempo:</td>
+                                                <td>{{ cryptoCracker.results.decode_time }} segundos</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sem resultados -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="fas fa-unlock-alt text-4xl mb-4"></i>
+                                <p>Insira um hash para tentar quebrar ou um texto codificado para decodificar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Gerador de Relatórios -->
+            <div v-else-if="currentTool === 'report-generator'">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Formulário -->
+                    <div class="bg-darker p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">Gerador de Relatórios</h3>
+
+                        <form @submit.prevent="generateReport">
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Título do Relatório</label>
+                                <input type="text" v-model="reportGenerator.title"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Relatório de Pentesting">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Nome da Empresa</label>
+                                <input type="text" v-model="reportGenerator.companyName"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Empresa XYZ">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Autor</label>
+                                <input type="text" v-model="reportGenerator.author"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary"
+                                    placeholder="Seu nome">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Formato</label>
+                                <select v-model="reportGenerator.format"
+                                    class="w-full bg-dark text-white border border-gray-700 rounded px-3 py-2 focus:outline-none focus:border-primary">
+                                    <option value="markdown">Markdown</option>
+                                    <option value="pdf">PDF</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Resultados para Incluir</label>
+                                <div class="max-h-48 overflow-y-auto bg-dark p-2 border border-gray-700 rounded">
+                                    <div v-if="savedResults.length === 0" class="text-gray-500 text-center py-2">
+                                        Nenhum resultado salvo
+                                    </div>
+                                    <div v-for="(result, index) in savedResults" :key="index"
+                                        class="py-1 px-2 flex items-center">
+                                        <input type="checkbox" :id="'result-' + index"
+                                            v-model="reportGenerator.selectedResults" :value="index" class="mr-2">
+                                        <label :for="'result-' + index" class="text-gray-300 text-sm">
+                                            {{ result.scan_type.replace('_', ' ').toUpperCase() }} - {{ result.target }}
+                                            ({{ new Date(result.timestamp).toLocaleString() }})
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none"
+                                :disabled="isLoading || reportGenerator.selectedResults.length === 0">
+                                <i class="fas fa-file-alt mr-2"></i> Gerar Relatório
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Prévia do relatório -->
+                    <div class="md:col-span-2 bg-darker rounded-lg shadow overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-primary">Prévia do Relatório</h3>
+                            <div v-if="reportGenerator.result">
+                                <button @click="downloadReport"
+                                    class="text-sm bg-primary hover:bg-blue-600 text-white py-1 px-3 rounded">
+                                    <i class="fas fa-download mr-1"></i> Download
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <!-- Loader -->
+                            <div v-if="isLoading" class="text-center py-8">
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary mb-4"></i>
+                                <p class="text-gray-400">Gerando relatório, aguarde...</p>
+                            </div>
+
+                            <!-- Resultado - Markdown -->
+                            <div v-else-if="reportGenerator.result && reportGenerator.format === 'markdown'"
+                                class="bg-dark p-4 rounded overflow-auto max-h-96">
+                                <pre><code>{{ reportGenerator.result.content }}</code></pre>
+                            </div>
+
+                            <!-- Resultado - PDF -->
+                            <div v-else-if="reportGenerator.result && reportGenerator.format === 'pdf'"
+                                class="text-center py-8">
+                                <i class="fas fa-file-pdf text-4xl text-primary mb-4"></i>
+                                <p class="text-gray-300 mb-4">Relatório PDF gerado com sucesso!</p>
+                                <button @click="downloadReport"
+                                    class="bg-primary hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                    <i class="fas fa-download mr-1"></i> Download do PDF
+                                </button>
+                            </div>
+
+                            <!-- Nenhum resultado ainda -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="fas fa-file-alt text-4xl mb-4"></i>
+                                <p>Selecione os resultados de scan e clique em "Gerar Relatório" para começar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script principal -->
+    <script src="js/app.js"></script>
+</body>
+
+</html>
